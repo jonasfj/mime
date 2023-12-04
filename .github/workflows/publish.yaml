@@ -3,15 +3,39 @@
 name: Publish
 
 on:
-  pull_request:
-    branches: [ master ]
   push:
     tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
 
 jobs:
-  publish:
-    if: ${{ github.repository_owner == 'dart-lang' }}
-    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+    steps:
+      - name: Create package # TODO: run build script
+        run: "tar -czvf mine-1.0.0.tar.gz ."
+      - name: Generate hashes
+        shell: bash
+        id: hash
+        run: |
+          echo "hashes=$(sha256sum mine-1.0.0.tar.gz | base64 -w0)" >> "$GITHUB_OUTPUT"
+      - name: Upload mine-1.0.0.tar.gz
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: mine-1.0.0.tar.gz
+          path: mine-1.0.0.tar.gz
+          if-no-files-found: error
+          retention-days: 5
+  provenance:
+    needs: [build]
     permissions:
-      id-token: write # Required for authentication using OIDC
-      pull-requests: write # Required for writing the pull request note
+      actions: read
+      id-token: write
+      #contents: write # allow it to create a release
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      #upload-assets: true # Upload provenance to a new release
+  #publish:
+  #  permissions:
+  #    id-token: write # Required for authentication using OIDC
