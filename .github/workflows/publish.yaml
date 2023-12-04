@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Create package # TODO: run build script
-        run: "tar --exclude=.git --exclude=mine-1.0.0.tar.gz -czvf mine-1.0.0.tar.gz ."
+        run: "tar --exclude=.git -czvf /tmp/mine-1.0.0.tar.gz . && cp /tmp/mine-1.0.0.tar.gz mine-1.0.0.tar.gz"
       - name: Generate hashes
         shell: bash
         id: hash
