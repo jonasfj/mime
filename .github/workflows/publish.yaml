@@ -12,6 +12,7 @@ jobs:
     outputs:
       hashes: ${{ steps.hash.outputs.hashes }}
     steps:
+      - uses: actions/checkout@v4
       - name: Create package # TODO: run build script
         run: "tar -czvf mine-1.0.0.tar.gz ."
       - name: Generate hashes
