@@ -37,7 +37,7 @@ jobs:
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"
       upload-assets: false 
-      #upload-assets: true # Upload provenance to a new release
+
   #publish:
   #  permissions:
   #    id-token: write # Required for authentication using OIDC
